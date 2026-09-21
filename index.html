@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bg="shader">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -10,7 +10,24 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800;900&family=Hanken+Grotesk:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body id="top">
+
+<div id="shader-bg" aria-hidden="true"></div>
+
+<div class="theme-tab" role="group" aria-label="Background theme">
+  <button type="button" data-bg="shader" class="on" aria-pressed="true">Shader</button>
+  <button type="button" data-bg="classic" aria-pressed="false">Classic</button>
+</div>
+
+<nav class="nav" aria-label="Sections">
+  <span class="nav-pill" aria-hidden="true"></span>
+  <a href="#about">About</a>
+  <a href="#journey">Journey</a>
+  <a href="#music">Music</a>
+  <a href="#performances">Performances</a>
+  <a href="#photos">Photos</a>
+  <a href="#contact">Contact</a>
+</nav>
 
 <header class="hero">
   <svg class="staff" viewBox="0 0 900 600" preserveAspectRatio="none" aria-hidden="true">
@@ -21,16 +38,7 @@
     <path d="M0 420 C 250 320, 500 500, 900 280"/>
   </svg>
 
-  <nav class="nav" aria-label="Sections">
-    <a href="#about">About</a>
-    <a href="#journey">Journey</a>
-    <a href="#music">Music</a>
-    <a href="#performances">Performances</a>
-    <a href="#photos">Photos</a>
-    <a href="#contact">Contact</a>
-  </nav>
-
-  <h1>CRIS K.</h1>
+  <h1>CRIS K</h1>
 
   <div class="hero-grid">
     <div class="portrait">
@@ -156,6 +164,59 @@
 <footer class="foot alt">
   <p>&copy; 2026 Crispin Libimba II</p>
 </footer>
+
+<a class="to-top" href="#top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</a>
+
+<script>
+  (function () {
+    var btn = document.querySelector('.to-top');
+    var navEl = document.querySelector('.nav');
+    function toggle() {
+      btn.classList.toggle('show', window.scrollY > 600);
+      navEl.classList.toggle('scrolled', window.scrollY > 10);
+    }
+    window.addEventListener('scroll', toggle, { passive: true });
+    toggle();
+
+    var nav = document.querySelector('.nav');
+    var pill = nav.querySelector('.nav-pill');
+    var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+    var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    var current = -2;
+
+    function place(i) {
+      if (i < 0) { pill.style.opacity = 0; return; }
+      var a = links[i];
+      pill.style.width = a.offsetWidth + 'px';
+      pill.style.transform = 'translateX(' + a.offsetLeft + 'px)';
+      pill.style.opacity = 1;
+      var target = a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2;
+      if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: target, behavior: 'smooth' });
+    }
+    function spy() {
+      var idx = -1, line = window.innerHeight * 0.35;
+      sections.forEach(function (s, i) { if (s.getBoundingClientRect().top <= line) idx = i; });
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) idx = sections.length - 1;
+      if (idx === current) return;
+      current = idx;
+      nav.classList.toggle('single', idx >= 0);
+      links.forEach(function (a, i) {
+        a.classList.toggle('active', i === idx);
+        if (i === idx) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+      place(idx);
+    }
+    function refresh() { var c = current; current = -2; spy(); if (current === -2) current = c; }
+    window.addEventListener('scroll', spy, { passive: true });
+    window.addEventListener('resize', refresh);
+    window.addEventListener('load', refresh);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+    spy();
+  })();
+</script>
+<script type="module" src="js/theme.js"></script>
 
 </body>
 </html>
